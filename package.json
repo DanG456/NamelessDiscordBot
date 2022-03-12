@@ -1,0 +1,22 @@
+{
+  "name": "namelessdiscordbot",
+  "version": "1.0.0",
+  "description": "Bot de discord sin proposito especifico #1",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DanG456/NamelessDiscordBot.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DanG456/NamelessDiscordBot/issues"
+  },
+  "homepage": "https://github.com/DanG456/NamelessDiscordBot#readme",
+  "dependencies": {
+    "discord.js": "^13.6.0"
+  }
+}
