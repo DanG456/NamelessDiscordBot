@@ -2,7 +2,9 @@
 const Discord = require("discord.js");
 
 //Crea un nuevo cliente
-const Client = new Discord.Client()
+const Client = new Discord.Client({intents: [Discord.Intents.FLAGS.GUILD_MESSAGES, Discord.Intents.FLAGS.GUILDS]});
+
+const { token } = require("./token.json")
 
 //Despliega el mensaje cuando se inicia el bot
 Client.on("ready", () => {
@@ -13,7 +15,6 @@ Client.on("ready", () => {
 Client.on("reconnecting", () =>{
    console.log(`El bot se esta reconectando:  ${client.user.tag}`) 
 });
-
 
 //Desconexion
 Client.on("disconnect", () =>{
@@ -36,4 +37,4 @@ Client.on("message", msg => {
 });
 
 //Se hace login al bot con el token
-Client.login("token");
+Client.login(token);

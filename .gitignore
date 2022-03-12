@@ -1,2 +1,3 @@
 node_modules/
-botID.txt
+bot_ID.txt
+token.json
