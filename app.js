@@ -1,6 +1,12 @@
 //Importa el paquete de discord
 const Discord = require("discord.js");
+//Leer escribir archivos paquete
+const fs = require("fs");
 
+//funcion para leer el contenido del archivo de niveles de json
+function regresaData(url,encoding){
+    return JSON.parse(fs.readFileSync("./level.json","utf-8"));
+}
 //Crea un nuevo cliente
 const Client = new Discord.Client({
     intents: [
@@ -41,7 +47,7 @@ Client.on("messageCreate", msg => {
 
     //Manda respuesta cuando el comando se ha escrito
     if(lowercomm == "!hola"){ //Respuesta al comando Hola
-        msg.reply("Hola mundo :D");
+        msg.reply("Hola '${}'");
     }
 
     //Comando !help
@@ -83,6 +89,27 @@ Client.on("messageCreate", msg => {
         //Obtener los ID de los canales del servidor
     msg.guild.channels.fetch().then(channels => console.log(channels)).catch(console.error);
     }
+
+    let data = regresaData();
+
+    //Indica si la informacion es incorrecta en el archivo level.json
+    if(data == undefined){
+        console.log("Informacion incorrecta en el archivo level.json")
+        return;
+    }
+
+    if(data.length > 0){
+        console.log("Información existente en el archivo level.json");
+    }else if(data.length <= 0){
+        //console.log("Archivo level.json vacio");
+        const newUser = {
+            "userID": msg.author.id,
+            "exp": 1,
+        }
+
+        console.log(newUser);
+    }
+
 });
 
 //Se hace login al bot con el token
