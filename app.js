@@ -7,6 +7,12 @@ const fs = require("fs");
 function regresaData(url,encoding){
     return JSON.parse(fs.readFileSync("./level.json","utf-8"));
 }
+
+//Funcion para escribir la informacion en el archivo
+function escribeData(data){
+    fs.writeFileSync("./level.json", JSON.stringify(data))
+}
+
 //Crea un nuevo cliente
 const Client = new Discord.Client({
     intents: [
@@ -98,8 +104,48 @@ Client.on("messageCreate", msg => {
         return;
     }
 
+    //Comando para mostrar el nivel y la experiencia en el server
+    if(msg.content.toLowerCase() == '!level'){
+        const arrayLevels = [5,25,50,100,300,1000,3000,5000,10000];
+
+        for(let i=0; i<data.length; i++){
+            if(data[i].userID == msg.author.id.toString()){
+                //msg.reply(`Hola en el momento eres nivel 1`)
+                for(let j = 0; j<arrayLevels.length; j++){
+                    if(data[i].exp < arrayLevels[j]){
+                        msg.reply(`Tu nivel actual es `+ ++j);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
     if(data.length > 0){
-        console.log("Información existente en el archivo level.json");
+        //Verificacion de si el usuario existe para incrementar su experiencia 
+        let exist = false;
+
+        for(let i=0; i<data.length; i++){
+            if(data[i].userID == msg.author.id.toString()){//Verifica si el usuario existe en el archivo de level.json
+                exist = true;
+
+                //Añade 1 de experiencia y escribe el valor en el archivo
+                data[i].exp++;
+                escribeData(data);
+                return; //detiene el metodo messageCreate y detiene la ejecución de cualquier codigo posterior
+            }
+        }
+
+        if(exist == false){
+            const newUser = {
+                "userID": msg.author.id,
+                "exp": 1,
+            }
+    
+            data.push(newUser);
+            escribeData(data);
+        }
+
     }else if(data.length <= 0){
         //console.log("Archivo level.json vacio");
         const newUser = {
@@ -107,7 +153,8 @@ Client.on("messageCreate", msg => {
             "exp": 1,
         }
 
-        console.log(newUser);
+        data.push(newUser);
+        escribeData(data);
     }
 
 });
