@@ -13,6 +13,18 @@ function escribeData(data){
     fs.writeFileSync("./level.json", JSON.stringify(data))
 }
 
+//Funcion para crear un nuevo usuario y guardarlo en el archivo level.json
+function creaUsuario(userID, data, serverID){
+    const newUser = {
+        "userID": userID,
+        "exp": 1,
+        "serverID": serverID
+    }
+
+    data.push(newUser); //Al arreglo de usuarios se añade el nuevo
+    escribeData(data); //Se escribe el arreglo de todos los usuarios al level.json
+}
+
 //Crea un nuevo cliente
 const Client = new Discord.Client({
     intents: [
@@ -53,12 +65,12 @@ Client.on("messageCreate", msg => {
 
     //Manda respuesta cuando el comando se ha escrito
     if(lowercomm == "!hola"){ //Respuesta al comando Hola
-        msg.reply("Hola '${}'");
+        msg.reply(`Hola ${msg.author.username}`);
     }
 
     //Comando !help
     else if(lowercomm == "!help"){
-        msg.reply("El bot por ahora solo tiene dos comandos. \n !hola: Para saludar \n!help: Muestra la lista de comandos")
+        msg.reply("El bot por ahora solo tiene los comandos. \n !hola: Para saludar \n !help: Muestra la lista de comandos\n !level: Muestra tu nivel en el servidor");
     }
 });
 
@@ -104,16 +116,25 @@ Client.on("messageCreate", msg => {
         return;
     }
 
+    //ID del propietario de un mensaje
+    const authorID = msg.author.id.toString();
+
+    //ID del servidor donde se escribio el mensaje
+    const servID = msg.guild.id.toString();
+
     //Comando para mostrar el nivel y la experiencia en el server
     if(msg.content.toLowerCase() == '!level'){
         const arrayLevels = [5,25,50,100,300,1000,3000,5000,10000];
 
+        //Ciclo para pasar por todos los elementos dentro del archivo level.json
         for(let i=0; i<data.length; i++){
-            if(data[i].userID == msg.author.id.toString()){
-                //msg.reply(`Hola en el momento eres nivel 1`)
+            //Revisa si coincide el ID registrado en el json con el ID del autor del mensaje enviado
+            if(data[i].userID == authorID && data[i].serverID == servID){
+                //Ciclo que pasa por los objetos dentro del arreglo arrayLevels
                 for(let j = 0; j<arrayLevels.length; j++){
+                    //Compara la experiencia del usuario con el valor actual del arreglo arrayLevels para mostrar su nivel y la necesaria para el nivel que sigue
                     if(data[i].exp < arrayLevels[j]){
-                        msg.reply(`Tu nivel actual es `+ ++j);
+                        msg.reply(`Tu nivel actual es `+ (j + 1) + '\n Para el siguiente nivel necesitas ' + (arrayLevels[j] - data[i].exp) + ' de experiencia');
                         return;
                     }
                 }
@@ -126,35 +147,24 @@ Client.on("messageCreate", msg => {
         let exist = false;
 
         for(let i=0; i<data.length; i++){
-            if(data[i].userID == msg.author.id.toString()){//Verifica si el usuario existe en el archivo de level.json
+            if(data[i].userID == authorID && data[i].serverID == servID){//Verifica si el usuario existe en el archivo de level.json
                 exist = true;
 
-                //Añade 1 de experiencia y escribe el valor en el archivo
+                //Añade 1 de experiencia y escribe el valor en el archivo level.json
                 data[i].exp++;
                 escribeData(data);
                 return; //detiene el metodo messageCreate y detiene la ejecución de cualquier codigo posterior
             }
         }
-
+        //Crea un nuevo objeto de usuario si no se encontro registrado en el level.json previamente
         if(exist == false){
-            const newUser = {
-                "userID": msg.author.id,
-                "exp": 1,
-            }
+            creaUsuario(authorID, data, servID);
+        }
     
-            data.push(newUser);
-            escribeData(data);
-        }
-
+    //En caso de que el archivo este vacio crea el nuevo objeto usuario
     }else if(data.length <= 0){
-        //console.log("Archivo level.json vacio");
-        const newUser = {
-            "userID": msg.author.id,
-            "exp": 1,
-        }
-
-        data.push(newUser);
-        escribeData(data);
+        
+        creaUsuario(authorID, data, servID);
     }
 
 });
