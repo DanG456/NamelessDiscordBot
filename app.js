@@ -2,8 +2,7 @@
 const Discord = require("discord.js");
 //Leer escribir archivos paquete
 const fs = require("fs");
-//Conexion entre MongoDB y el codigo javascript
-const mongoose = require("mongoose");
+import conexion from "./ConexionMongo";
 
 //Funcion para leer el contenido del archivo de niveles de json
 function regresaData(url,encoding){
@@ -102,14 +101,7 @@ Client.on("ready", () => {
 });
 
 //Conexion con MongoDB
-mongoose.connect("mongodb+srv://danielgil1922:6Q7oIQofbqmhFP0S@cluster0.qhdualu.mongodb.net/test", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-}).then(()=>{
-    console.log("Conectado correctamente a MongoDB");
-}).catch(()=>{
-    console.log("Hubo un error al realizar la conexion con MongoDB");
-});
+conexion()
 
 //Reconexion
 Client.on("reconnecting", () =>{
