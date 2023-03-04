@@ -2,8 +2,10 @@
 const Discord = require("discord.js");
 //Leer escribir archivos paquete
 const fs = require("fs");
+//Conexion entre MongoDB y el codigo javascript
+const mongoose = require("mongoose");
 
-//funcion para leer el contenido del archivo de niveles de json
+//Funcion para leer el contenido del archivo de niveles de json
 function regresaData(url,encoding){
     return JSON.parse(fs.readFileSync("./level.json","utf-8"));
 }
@@ -47,6 +49,66 @@ const { token } = require("./token.json")
 //Despliega el mensaje cuando se inicia el bot
 Client.on("ready", () => {
     console.log(`El bot ${Client.user.tag} esta ahora en linea`);
+
+    setInterval(async function(){
+        const fetch = require("node-superfetch");
+
+        let user = "";
+
+        const uptime =  await fetch.get(`https://decapi.me/twitch/uptime/${user}`);
+
+        const avatar =  await fetch.get(`https://decapi.me/twitch/avatar/${user}`);
+
+        const viewers =  await fetch.get(`https://decapi.me/twitch/viewercount/${user}`);
+
+        const title =  await fetch.get(`https://decapi.me/twitch/title/${user}`);
+
+        const game =  await fetch.get(`https://decapi.me/twitch/game/${user}`);
+
+        const twitch = require("./Schemas/twitchSchema")
+        let data = await twitch.findOne({user: user, title: title.body})
+
+        if(uptime.body !== `${user} is offline`){
+
+            const embed = new Discord.MessageEmbed()
+            .setAuthor({
+                "name": `${user}`,
+                "iconURL": `${avatar.body}`
+            })
+            .setTitle(`${title.body}`)
+            .setThumbnail(`${avatar.body}`)
+            .setURL(`https://www.twitch.tv/${user}`)
+            .addFields("Game",`${game.body}`,true)
+            .addFields("Viewers", `${viewers.body}`,true)
+            .setImage(`https://static-cdn.jtvnw.net/previews-ttv/live_user_${user}-620x378.jpg`)
+            .setColor("BLURPLE");
+
+            if(!data){
+                const newData = new twitch({
+                    user: user,
+                    title: `${title.body}`,
+                });
+                await client.channels.cache.get("1077615993297317960").send({content : `${user} está en directo. Ve a verlo manquear\n https://www.twitch.tv/${user}`, embeds: [embed]}); //Manda al canal indicado la información del stream
+                return await newData.save()
+            }
+            //Si el titulo guardado en la base de datos es igual al del nuevo stream hace un return
+            if(data.title === `${title.body}`){
+                return;
+            }
+            await client.channels.cache.get("1077615993297317960").send({content : `${user} está en directo. Ve a verlo manquear\n https://www.twitch.tv/${user}`, embeds: [embed]}); //Manda al canal indicado la información del stream
+            await twitch.findOneAndUpdate({user: user},{title: title.body})
+        }
+    }, 60000);
+});
+
+//Conexion con MongoDB
+mongoose.connect("mongodb+srv://danielgil1922:6Q7oIQofbqmhFP0S@cluster0.qhdualu.mongodb.net/test", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+}).then(()=>{
+    console.log("Conectado correctamente a MongoDB");
+}).catch(()=>{
+    console.log("Hubo un error al realizar la conexion con MongoDB");
 });
 
 //Reconexion
