@@ -2,7 +2,7 @@
 const Discord = require("discord.js");
 //Leer escribir archivos paquete
 const fs = require("fs");
-import conexion from "./ConexionMongo";
+//const connMongo = require("./ConexionMongo.js");
 
 //Funcion para leer el contenido del archivo de niveles de json
 function regresaData(url,encoding){
@@ -52,7 +52,7 @@ Client.on("ready", () => {
     setInterval(async function(){
         const fetch = require("node-superfetch");
 
-        let user = "";
+        let user = "rhyno_sad";
 
         const uptime =  await fetch.get(`https://decapi.me/twitch/uptime/${user}`);
 
@@ -77,8 +77,10 @@ Client.on("ready", () => {
             .setTitle(`${title.body}`)
             .setThumbnail(`${avatar.body}`)
             .setURL(`https://www.twitch.tv/${user}`)
-            .addFields("Game",`${game.body}`,true)
-            .addFields("Viewers", `${viewers.body}`,true)
+            .addFields(
+                {name: "Game", value: `${game.body}`, inline: true},
+                {name: "Viewers", value: `${viewers.body}`, inline: true},
+                )
             .setImage(`https://static-cdn.jtvnw.net/previews-ttv/live_user_${user}-620x378.jpg`)
             .setColor("BLURPLE");
 
@@ -87,14 +89,14 @@ Client.on("ready", () => {
                     user: user,
                     title: `${title.body}`,
                 });
-                await client.channels.cache.get("1077615993297317960").send({content : `${user} está en directo. Ve a verlo manquear\n https://www.twitch.tv/${user}`, embeds: [embed]}); //Manda al canal indicado la información del stream
+                await Client.channels.cache.get("1077615993297317960").send({content : `${user} está en directo. Ve a verlo manquear\n https://www.twitch.tv/${user}`, embeds: [embed]}); //Manda al canal indicado la información del stream
                 return await newData.save()
             }
             //Si el titulo guardado en la base de datos es igual al del nuevo stream hace un return
             if(data.title === `${title.body}`){
                 return;
             }
-            await client.channels.cache.get("1077615993297317960").send({content : `${user} está en directo. Ve a verlo manquear\n https://www.twitch.tv/${user}`, embeds: [embed]}); //Manda al canal indicado la información del stream
+            await Client.channels.cache.get("1077615993297317960").send({content : `${user} está en directo. Ve a verlo manquear\n https://www.twitch.tv/${user}`, embeds: [embed]}); //Manda al canal indicado la información del stream
             await twitch.findOneAndUpdate({user: user},{title: title.body})
         }
     }, 60000);
@@ -105,12 +107,12 @@ conexion()
 
 //Reconexion
 Client.on("reconnecting", () =>{
-   console.log(`El bot se esta reconectando:  ${client.user.tag}`) 
+   console.log(`El bot se esta reconectando:  ${Client.user.tag}`) 
 });
 
 //Desconexion
 Client.on("disconnect", () =>{
-    console.log(`El bot:  ${client.user.tag} esta desconectado`); 
+    console.log(`El bot:  ${Client.user.tag} esta desconectado`); 
  });
 
 //Revisa los mensajes para identificar los comandos
