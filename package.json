@@ -18,7 +18,9 @@
   "homepage": "https://github.com/DanG456/NamelessDiscordBot#readme",
   "dependencies": {
     "discord.js": "^13.12.0",
+    "megadb": "^3.4.0",
     "mongoose": "^7.0.0",
-    "node-superfetch": "^0.3.3"
+    "node-superfetch": "^0.3.3",
+    "yt-channel-info": "^3.2.1"
   }
 }

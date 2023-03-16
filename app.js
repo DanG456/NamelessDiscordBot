@@ -48,7 +48,7 @@ const { token } = require("./token.json")
 //Despliega el mensaje cuando se inicia el bot
 Client.on("ready", () => {
     console.log(`El bot ${Client.user.tag} esta ahora en linea`);
-
+    //Codigo para notificaciones de twitch al empezar directo.
     setInterval(async function(){
         const fetch = require("node-superfetch");
 
@@ -100,10 +100,34 @@ Client.on("ready", () => {
             await twitch.findOneAndUpdate({user: user},{title: title.body})
         }
     }, 60000);
+
+    //Codigo para mostrar notificaciones por video de youtube
+    const {getChannelVideos} = require("yt-channel-info");
+    const db = require("megadb"); 
+    const yt = new db.crearDB("yt"); 
+    setInterval(async function(){
+        const videos = await getChannelVideos("@RhynoSad",0);
+        const ultimoVideo = videos.items[0];
+        const titulo = await yt.obtener("@RhynoSad");
+        if(titulo === ultimoVideo.title) return
+        if(titulo !== ultimoVideo.title){
+            yt.establecer("@RhynoSad",ultimoVideo.title);
+            Client.channels.cache.get("1077615993297317960").send(`${ultimoVideo.author} ha subido un nuevo video: **${ultimoVideo.title}**, vayan a darle like\n https://www.youtube.com/watch?v=${ultimoVideo.videoId}`)
+        }
+    }, 120000);
 });
 
-//Conexion con MongoDB
-conexion()
+
+//Conexion entre MongoDB y el codigo javascript
+const mongoose = require("mongoose");
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    }).then(() => {
+        console.log("Conectado correctamente a MongoDB");
+    }).catch(() => {
+        console.log("Hubo un error al realizar la conexion con MongoDB");
+    });
+
 
 //Reconexion
 Client.on("reconnecting", () =>{
